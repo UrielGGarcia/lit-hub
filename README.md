@@ -101,12 +101,7 @@ npm run build
 ## Vista preliminar de la interfaz
 
 **PC**  
-<video controls width="600">
-  <source src="docs/assets/Demo.mp4" type="video/mp4">
-  Tu navegador no soporta la reproducción de video.
-</video>
+![Vista en PC](docs/assets/vista_pc.jpeg)
 
 **Móvil**  
-![Vista móvil - Catálogo](docs/assets/general.jpg)  
-![Vista móvil - Buscador](docs/assets/buscador.jpg)  
-![Vista móvil - Sidebar](docs/assets/siderBar.jpg)
+![Vistas en móvil](docs/assets/vistas_movil.jpeg)
