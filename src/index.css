@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@theme {
+  --spacing-xl-plus: 1550;
+}
+
+/* Ocultar scrollbar pero permitir scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari y Opera */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+@keyframes scroll-hint {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+.scroll-hint {
+  animation: scroll-hint 1.5s infinite;
+}
