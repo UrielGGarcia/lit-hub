@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
-  --spacing-xl-plus: 1550;
+  --spacing-xl-plus: 1550px;
 }
 
 /* Ocultar scrollbar pero permitir scroll */
