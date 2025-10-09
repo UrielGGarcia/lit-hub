@@ -29,9 +29,9 @@ function SiderBar() {
     }
 
     return (
-        <div className="sticky top-40 flex flex-col rounded-xl p-6  text-xl font-sans h-120 border border-gray-300 bg-white">
+        <nav className="sticky top-20 lg:top-32 md:top-32 flex flex-col rounded-xl p-6  text-xl font-sans h-120 md:h-150 border border-gray-300 bg-gray-200 md:bg-white">
 
-            <div ref={containerRef} onScroll={handleCsroll} className="h-100 overflow-y-scroll gap-3 no-scrollbar">
+            <div ref={containerRef} onScroll={handleCsroll} className="h-100 md:h-120  overflow-y-scroll gap-3 no-scrollbar">
                 <p className="font-semibold text-2xl">
                     Inicio
                 </p>
@@ -95,7 +95,7 @@ function SiderBar() {
                 </div>
             )}
 
-        </div>
+        </nav>
 
     );
 }
