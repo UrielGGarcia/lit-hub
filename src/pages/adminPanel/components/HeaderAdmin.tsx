@@ -1,0 +1,103 @@
+import { useRef } from "react";
+//import UserSesionAdmin from "./UserSesionAdmin";
+import BrowserAdmin from "./BrowserAdmin";
+
+type Props = {
+    onToggle: () => void;
+    onHandleSearch: () => void;
+    onHandleSesion: () => void;
+    isSesion: boolean,
+};
+
+function HeaderAdmin({ onToggle, onHandleSearch, onHandleSesion, isSesion }: Props) {
+    const headerRef = useRef<HTMLElement>(null);
+
+    return (
+        <header
+            ref={headerRef}
+            className="sticky flex flex-col top-0 bg-gray-200 z-50  w-full items-center md:items-end">
+            <div
+                className="mt-4 flex items-center w-full md:h-22 justify-between shadow-xl/15 pl-6 pr-6 rounded-xl bg-white z-760 border border-gray-300"
+            >
+
+                {/* --- Lado izquierdo: logo y menú --- */}
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onToggle}
+                        aria-label="Abrir menú lateral"
+                        className="cursor-pointer"
+                    >
+                        <svg className="w-9 h-9">
+                            <use href="/sprite.svg#menu" />
+                        </svg>
+                    </button>
+
+                    <a href="/" aria-label="Ir al inicio">
+                        <img src="/Logo.png" alt="Logo de LitHub" className="lg:w-30 w-15 cursor-pointer" />
+                    </a>
+                </div>
+
+                {/* --- Barra de búsqueda (no visible para ningun dispositivo) --- */}
+                <BrowserAdmin
+                    isMovil={true}
+                    isVisibleP={true}
+                    isSearchP={true}
+                />
+
+                {/* --- Navegación principal --- */}
+                <nav className="flex items-center gap-4">
+                    <a
+                        href="/about-us"
+                        className="text-xl font-semibold cursor-pointer hidden md:block lg:block"
+                    >
+                        Sobre LitHub
+                    </a>
+
+                    <div className="relative group inline-block">
+                        <svg className="hover:scale-110 transition-transform cursor-pointer h-10 w-10 hidden lg:block md:block">
+                            <use xlinkHref="/sprite.svg#icon-cart" />
+                        </svg>
+                        <span className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-800 rounded-sm text-white p-1 mt-2 w-24 text-center">
+                            Ver carrito
+                        </span>
+                    </div>
+
+                    <button onClick={onHandleSesion}>
+                        <svg className="w-13 h-13 cursor-pointer hover:scale-110 transition-transform hidden lg:block md:block">
+                            <use xlinkHref="/sprite.svg#icon-user" />
+                        </svg>
+                    </button>
+
+
+                    {/* --- Iconos móviles --- */}
+                    <div className="flex md:hidden  gap-3">
+                        <svg
+                            className="w-7 h-7 text-black"
+                            onClick={onHandleSearch}
+                        >
+                            <use xlinkHref="/sprite.svg#icon-search" />
+                        </svg>
+                        <svg className="w-7 h-7 text-black">
+                            <use xlinkHref="/sprite.svg#icon-cart" />
+                        </svg>
+                        <svg className="w-7 h-7 text-black"
+                            onClick={onHandleSesion}>
+                            <use xlinkHref="/sprite.svg#icon-user" />
+                        </svg>
+                    </div>
+
+                </nav>
+            </div>
+            {/* Aqui hay algun error que no logro entender de por que se muestran 2 veces la pestaña
+            de opciones de inicio de sesion por eso mejor desactive esta linea y su import, ya se modifico
+            ya se muestra de mejor manera pero ahi checas si es mejor asi o de otra manera*/}
+           {/* <div
+                className={`fixed hidden md:block lg:block lg:top-30 md:top-30 transition-all duration-500 ease-in-out z-70 ${isSesion ? "opacity-100 max-w-full" : "opacity-0 max-w-0"}`}>
+                <UserSesionAdmin /> 
+            </div>*/}
+            
+        </header>
+    );
+};
+
+export default HeaderAdmin;
