@@ -26,6 +26,7 @@ export default function BookDetail() {
     useEffect(() => {
         if (data && data.length > 0) {
             setBook(data[0]);
+            console.log(book);
         }
     }, [data, dataByA]);
 
@@ -86,10 +87,10 @@ export default function BookDetail() {
                             <strong className="text-gray-700">Género:</strong> Ficción
                         </div>
                         <div>
-                            <strong className="text-gray-700">Lenguaje:</strong> Español
+                            <strong className="text-gray-700">Lenguaje:</strong> {book?.idioma}
                         </div>
                         <div>
-                            <strong className="text-gray-700">Formato:</strong> eBook y PDF
+                            <strong className="text-gray-700">Formato:</strong> .EPUB y PDF
                         </div>
                     </div>
 
@@ -106,7 +107,7 @@ export default function BookDetail() {
                     </button>
                     <div className="text-sm text-gray-600 space-y-1">
                         <div>
-                            <strong className="text-gray-700">Formato:</strong> eBook
+                            <strong className="text-gray-700">Formato:</strong> .EPUB y .PDF
                         </div>
                         <div>Disponible inmediatamente</div>
                     </div>
@@ -115,10 +116,10 @@ export default function BookDetail() {
                             Todos los e-books que ofrece LitHub son envíados vía correo electrónico, el que se registró
                             con la cuenta.
                             Se envía en formato .EPUB y .PDF, para más información de cómo abrir dichos formatos puede dirigirse a
-                            <a 
-                            className="text-blue-700 underline"
-                            target="_blank"
-                            href="https://www.ionos.mx/digitalguide/servidores/know-how/abrir-archivo-epub/"> Archivos .EPUB</a> 
+                            <a
+                                className="text-blue-700 underline"
+                                target="_blank"
+                                href="https://www.ionos.mx/digitalguide/servidores/know-how/abrir-archivo-epub/"> Archivos .EPUB</a>
                         </p>
                     </div>
                 </div>

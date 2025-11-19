@@ -1,21 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePost } from "../../hooks/public/usePost.hook";
 import { useUploadFile } from "../../hooks/public/useUploadFile.hook";
-import { apiLitHubBooks, apiLitHubFiles } from "../../constants/rutas.constants";
+import { apiLitHubBooks, apiLitHubBooksByAutor, apiLitHubBooksByAutorNoPublished, apiLitHubFiles } from "../../constants/rutas.constants";
 import { useAuth } from "../../context/AuthContext";
+import { useGet } from "../../hooks/public/useGet";
+import type { Ebook } from "../../interfaces/books.interfaces";
+import { AddFormBook } from "./components/AddFormBook";
+import { UploadFilesBook } from "./components/UploadFilesBook";
+import { Cuenta } from "./components/Cuenta";
+import { Settins } from "./components/Settings";
 
 export function AdmonPanelApp() {
+
     const [activeTab, setActiveTab] = useState<"ebook" | "cuenta" | "config">("ebook");
+    const [activeTabBook, setActiveTabBook] = useState<"agregar" | "Ver mis E-books">("Ver mis E-books");
 
     const [titulo, setTitulo] = useState("");
     const [sinopsis, setSinopsis] = useState("");
     const [precio, setPrecio] = useState("");
+    const [idioma, setIdioma] = useState("");
 
-    const { user, logOut } = useAuth();
+    const [successBody, setSuccessBody] = useState<boolean>(false);
+    const [successCover, setSuccessCover] = useState<boolean>(false);
+    const [successEpub, setSuccessEpub] = useState<boolean>(false);
+    const [successPdf, setSuccessPdf] = useState<boolean>(false);
 
+
+    const { user } = useAuth();
+
+    const [userId, setUserId] = useState<string | any>("");
     const [ebookId, setEbookId] = useState<string | null>(null);
 
     const { data, isLoading, error, postData } = usePost(apiLitHubBooks);
+
+    const { data: dataEB, isLoading: isLoadingEB, error: errorEB } = useGet<Ebook[]>(`${apiLitHubBooksByAutor}/${userId}`)
+    const { data: dataEBN, isLoading: isLoadingEBN, error: errorEBN } = useGet<Ebook[]>(`${apiLitHubBooksByAutorNoPublished}/${userId}`)
+
 
     const { uploadFile, isLoading: isUploading, error: uploadError } = useUploadFile<any>();
 
@@ -26,13 +46,17 @@ export function AdmonPanelApp() {
             title: titulo,
             sinopsis,
             price: parseFloat(precio),
-            authorId: 2,
+            authorId: userId,
+            idioma: idioma,
         };
+
+        console.log(body);
 
         try {
             const result = await postData(body) as { id: string };
 
-            alert("E-book guardado correctamente ✅");
+            alert("E-book guardado correctamente");
+            setSuccessBody(true);
 
             if (result.id) setEbookId(result.id);
 
@@ -41,9 +65,13 @@ export function AdmonPanelApp() {
             setPrecio("");
 
         } catch (err) {
-            alert("Error al guardar el e-book ❌");
+            alert("Error al guardar el e-book");
         }
     };
+
+    useEffect(() => {
+        setUserId(user?.id);
+    }, [user?.id])
 
     const [cover, setCover] = useState<File | null>(null);
     const [pdf, setPdf] = useState<File | null>(null);
@@ -52,6 +80,7 @@ export function AdmonPanelApp() {
     const uploadSingleFile = async (file: File | null, type: "COVER" | "PDF" | "EPUB") => {
         if (!ebookId) return alert("Primero debes crear el eBook");
         if (!file) return alert("Selecciona un archivo");
+
 
         const formData = new FormData();
         formData.append("file", file);
@@ -62,10 +91,20 @@ export function AdmonPanelApp() {
                 `${apiLitHubFiles}/${type}/${ebookId}`
             );
 
-            alert(`${type} subido correctamente ✅`);
+            if (type == "COVER") {
+                setSuccessCover(true);
+            }
+            if (type == "EPUB") {
+                setSuccessEpub(true);
+            }
+            if (type == "PDF") {
+                setSuccessPdf(true);
+            }
+
+            alert(`${type} subido correctamente `);
 
         } catch (err) {
-            alert(`Error al subir ${type} ❌`);
+            alert(`Error al subir ${type} `);
         }
     };
 
@@ -78,7 +117,6 @@ export function AdmonPanelApp() {
                     <h1 className="text-lg sm:text-xl font-semibold text-gray-700 text-center sm:text-left">
                         Panel de Administración
                     </h1>
-
                     <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
                         {["cuenta", "ebook", "config"].map((tab) => (
                             <button
@@ -99,159 +137,120 @@ export function AdmonPanelApp() {
 
                     {activeTab === "ebook" && (
                         <>
-                            {/* FORM 1 - CREAR EBOOK */}
-                            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
-                                <div className="col-span-2">
-                                    <label className="block text-gray-700 font-medium mb-2">Título</label>
-                                    <input
-                                        value={titulo}
-                                        onChange={(e) => setTitulo(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="col-span-2">
-                                    <label className="block text-gray-700 font-medium mb-2">Sinopsis</label>
-                                    <textarea
-                                        value={sinopsis}
-                                        onChange={(e) => setSinopsis(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-lg px-4 py-2 resize-none"
-                                        rows={4}
-                                        required
-                                    ></textarea>
-                                </div>
-
-                                <div className="col-span-2">
-                                    <label className="block text-gray-700 font-medium mb-2">Precio</label>
-                                    <input
-                                        type="number"
-                                        value={precio}
-                                        onChange={(e) => setPrecio(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="col-span-2 flex justify-end">
+                            <div className="space-x-4">
+                                {["agregar", "Ver mis E-books"].map(tab =>
                                     <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="bg-blue-600 text-white px-6 py-2 rounded-lg"
-                                    >
-                                        {isLoading ? "Guardando..." : "Guardar E-book"}
+                                        key={tab}
+                                        onClick={() => { setActiveTabBook(tab as any) }}
+                                        className={`cursor-pointer px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeTabBook === tab
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                            }`} >
+                                        {tab}
                                     </button>
-                                </div>
+                                )}
+                            </div>
 
-                                {error && <p className="col-span-2 text-red-600">Error: {error}</p>}
-                            </form>
+                            {/* FORM 1 - CREAR EBOOK */}
+                            {activeTabBook == "agregar" && !successBody && (
+                                <AddFormBook
+                                    handleSubmit={handleSubmit}
+                                    titulo={titulo}
+                                    setTitulo={setTitulo}
+                                    sinopsis={sinopsis}
+                                    setSinopsis={setSinopsis}
+                                    setIdioma={setIdioma}
+                                    precio={precio}
+                                    setPrecio={setPrecio}
+                                    isLoading={isLoading}
+                                    error={error}
+                                />
+                            )}
+                            {activeTabBook == "Ver mis E-books" && (
+                                <div className="mt-4">
+                                    <strong className="text-green-900 text-2xl">PUBLICADOS</strong>
+                                    <div className="space-y-2 border rounded-lg p-2 mb-7">
+                                        {dataEB?.map(book =>
+                                            <div
+                                                key={book.id}
+                                                className="flex gap-1 border p-1 rounded-lg">
+                                                <p className="text-lg w-1/2">{book.title}</p>
+                                                <div
+                                                    className="w-1/2 flex justify-between lg:justify-around">
+                                                    <button
+                                                        className=" rounded-lg p-1 text-sm cursor-pointer bg-amber-300 font-bold"
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                    <button
+                                                        className=" rounded-lg p-1 text-sm text-white bg-red-700 cursor-pointer font-bold">
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <strong className="text-red-900 text-2xl">PENDIENTES</strong>
+                                    <p className="text-sm text-gray-700">Por falta de portada, archivo PDF o archivo EPUB</p>
+                                    <p className="text-sm text-gray-700">Favor de agregar lo faltante. En caso de que no se agregue, Se eliminará automáticamente en 15 días.</p>
+                                    <div className="space-y-2 border rounded-lg p-2">
+                                        {dataEBN?.map(book =>
+                                            <div
+                                                key={book.id}
+                                                className="flex gap-1 border p-1 rounded-lg">
+                                                <p className="text-lg w-1/2">{book.title}</p>
+                                                <div className="w-1/2 flex justify-between">
+                                                    <button
+                                                        className=" rounded-lg p-1 text-sm cursor-pointer bg-amber-300 font-bold">
+                                                        Editar
+                                                    </button>
+                                                    <button
+                                                        className=" rounded-lg p-1 text-sm text-white bg-red-700 cursor-pointer font-bold">
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                </div>
+                            )}
 
                             {/* FORM 2 - SUBIDA DE ARCHIVOS */}
-                            {ebookId && (
-                                <div className="border-t pt-6 space-y-6">
-
-                                    <h2 className="text-lg font-semibold">Subir archivos del eBook</h2>
-
-                                    {/* COVER */}
-                                    <div>
-                                        <label className="block mb-1 font-medium">Portada</label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setCover(e.target.files?.[0] || null)}
-                                            className="border p-2 rounded w-full bg-gray-50"
-                                        />
-                                        <button
-                                            onClick={() => uploadSingleFile(cover, "COVER")}
-                                            className="mt-2 bg-indigo-600 text-white px-4 py-2 rounded"
-                                            disabled={isUploading}
-                                        >
-                                            Subir Portada
-                                        </button>
-                                    </div>
-
-                                    {/* PDF */}
-                                    <div>
-                                        <label className="block mb-1 font-medium">Archivo PDF</label>
-                                        <input
-                                            type="file"
-                                            accept="application/pdf"
-                                            onChange={(e) => setPdf(e.target.files?.[0] || null)}
-                                            className="border p-2 rounded w-full bg-gray-50"
-                                        />
-                                        <button
-                                            onClick={() => uploadSingleFile(pdf, "PDF")}
-                                            className="mt-2 bg-green-600 text-white px-4 py-2 rounded"
-                                            disabled={isUploading}
-                                        >
-                                            Subir PDF
-                                        </button>
-                                    </div>
-
-                                    {/* EPUB */}
-                                    <div>
-                                        <label className="block mb-1 font-medium">Archivo EPUB</label>
-                                        <input
-                                            type="file"
-                                            accept=".epub"
-                                            onChange={(e) => setEpub(e.target.files?.[0] || null)}
-                                            className="border p-2 rounded w-full bg-gray-50"
-                                        />
-                                        <button
-                                            onClick={() => uploadSingleFile(epub, "EPUB")}
-                                            className="mt-2 bg-purple-600 text-white px-4 py-2 rounded"
-                                            disabled={isUploading}
-                                        >
-                                            Subir EPUB
-                                        </button>
-                                    </div>
-
-                                    {uploadError && (
-                                        <p className="text-red-600 text-sm">
-                                            Error al subir archivo: {uploadError.message}
-                                        </p>
-                                    )}
-                                </div>
+                            {ebookId && activeTabBook == "agregar" && (
+                                <UploadFilesBook
+                                    uploadSingleFile={uploadSingleFile}
+                                    isUploading={isUploading}
+                                    setPdf={setPdf}
+                                    setCover={setCover}
+                                    setEpub={setEpub}
+                                    successCover={successCover}
+                                    successEpub={successEpub}
+                                    successPdf={successPdf}
+                                    epub={epub}
+                                    pdf={pdf}
+                                    cover={cover}
+                                    uploadError={uploadError}
+                                />
                             )}
                         </>
                     )}
 
                     {activeTab === "cuenta" && (
-                        <div className="gap-2">
-                            <h1 className="text-2xl font-bold">Datos de la cuenta</h1>
-                            <div className="flex  text-xl mt-2">
-                                <strong>Nombre: </strong>
-                                <p className="text-gray-600 ml-1">
-                                     {user?.nombre} {user?.apellidoPaterno} {user?.apellidoMaterno}
-                                </p>
-                            </div>
-
-                            <div className="flex text-xl mt-2">
-                                <strong>Correo electrónico: </strong>
-                                <p className="text-gray-600 ml-1">
-                                    {user?.email}
-                                </p>
-                            </div>
-                            <div className="mt-2">
-                                <button className="border rounded-lg text-2xl bg-red-700 text-white p-1 cursor-pointer">
-                                    Cerrar sesión
-                                </button>
-                            </div>
-                        </div>
+                        <Cuenta
+                            nombre={user?.nombre}
+                            apellidoPaterno={user?.apellidoPaterno}
+                            apellidoMaterno={user?.apellidoMaterno}
+                            email={user?.email}
+                        />
                     )}
 
                     {activeTab === "config" && (
-                        <div>
-                            <h2 className="text-lg font-semibold mb-4">Configuración general</h2>
-                            <p className="text-gray-600">
-                                Ajusta opciones del sistema o preferencias.
-                            </p>
-                        </div>
+                        <Settins />
                     )}
 
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

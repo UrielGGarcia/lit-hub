@@ -117,7 +117,6 @@ function Header({ onToggle, onHandleSearch, onHandleSesion, isSesion, isComplete
                             </svg>
                         </button>
 
-
                         {/* --- Iconos móviles --- */}
                         <div className="flex md:hidden  gap-3">
                             <svg

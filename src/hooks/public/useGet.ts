@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useGet<T>(url: string) {
+export function useGet<T>(url: string ) {
     const [data, setData] = useState<T | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);

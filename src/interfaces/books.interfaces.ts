@@ -3,6 +3,7 @@ export interface Ebook {
     title: string;
     price: string;
     sinopsis: string;
+    idioma : string;
     cover: string | null;
     author: Author;
 }

@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("access_token");
         setToken(null);
         setUser(null);
-        window.location.reload();
+       
     };
 
     if (isLoading) {
