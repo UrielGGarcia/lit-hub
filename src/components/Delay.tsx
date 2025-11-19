@@ -1,8 +1,8 @@
 type Props = {
     isVisibleP: boolean,
-    onHandleVisble(): void,
-    isSesionP: boolean,
-    onHandleSesion(): void,
+    onHandleVisble?(): void,
+    isSesionP?: boolean,
+    onHandleSesion?(): void,
 }
 
 
