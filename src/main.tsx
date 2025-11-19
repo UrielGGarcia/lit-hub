@@ -1,10 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import HomePage from './pages/home/HomePage'
+import { Router } from './routes/Router'
+import { AuthProvider } from './context/AuthContext'
+import { SearchProvider } from './context/SearchContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <HomePage/>
+    <SearchProvider>
+      <AuthProvider>
+        <Router />
+      </AuthProvider>
+    </SearchProvider>
   </StrictMode>,
 )
