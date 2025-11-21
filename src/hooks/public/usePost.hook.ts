@@ -3,7 +3,7 @@ import { useState } from "react";
 export function usePost<T, B = unknown>(url: string) {
   const [data, setData] = useState<T | null | any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // 🔥 debe ser string, no any
+  const [error, setError] = useState<string | null>(null); 
   const [success, setSuccess] = useState(false);
 
   const postData = async (body: B) => {

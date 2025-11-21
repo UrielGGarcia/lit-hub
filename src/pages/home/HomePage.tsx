@@ -10,58 +10,99 @@ import { apiLitHubCoversBooks, apiLitHubBooks, apiLitHubGenres, apiLitHubAuthors
 import sinportada from '/sinportada.png';
 import { useGet } from "../../hooks/public/useGet";
 import { useSearch } from "../../context/SearchContext";
-
-
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 
 function HomePage() {
+    const { user } = useAuth();
+    const { cart } = useCart();
+    const navigate = useNavigate();
+
     const [isVisible, setIsVisible] = useState(window.innerWidth < 835 ? false : true);
     const [isSearch, setIsSearch] = useState(false);
     const [isSesion, setIsSesion] = useState(false);
+    const [isCart, setIsCart] = useState(true);
+
+
     const [isSidebarSections, setIsSidebarSections] = useState<SiderBarSection<any>[] | null>(null);
+
+    const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>([]);
 
     const { search } = useSearch();
 
-    const { data, isLoading, error } = useGet<Ebook[]>(apiLitHubBooks);
-    const { data: dataG, isLoading: isLoadingG, error: errorG } = useGet<Genre[]>(apiLitHubGenres);
-    const { data: dataA, isLoading: isLoadingA, error: errorA } = useGet<Author[]>(apiLitHubAuthors);
+    const { data: books, isLoading, error } = useGet<Ebook[]>(apiLitHubBooks);
+    const { data: dataGenres, isLoading: isLoadingG, error: errorG } = useGet<Genre[]>(apiLitHubGenres);
+    const { data: dataAuthors, isLoading: isLoadingA, error: errorA } = useGet<Author[]>(apiLitHubAuthors);
 
+    // Funciones para actualizar filtros
+    const toggleGenreFilter = (id: number) => {
+        setSelectedGenreIds(prev => prev.includes(id) ? prev.filter(gid => gid !== id) : [...prev, id]);
+    };
 
-    const filteredBooks = data?.filter(book =>
-        book.title.toLowerCase().includes(search.toLowerCase())
-    );
+    const toggleAuthorFilter = (id: number) => {
+        setSelectedAuthorIds(prev => prev.includes(id) ? prev.filter(aid => aid !== id) : [...prev, id]);
+    };
 
+    // Filtrar libros según búsqueda y filtros
+    const filteredBooks = books?.filter(book => {
+        const matchesSearch = book.title.toLowerCase().includes(search.toLowerCase());
+
+        const matchesGenre = selectedGenreIds.length === 0 || (book.genres?.some(g => selectedGenreIds.includes(g.id)) ?? false);
+        const matchesAuthor = selectedAuthorIds.length === 0 || (book.author && selectedAuthorIds.includes(book.author.id));
+
+        return matchesSearch && matchesGenre && matchesAuthor;
+    });
+
+    // Construir secciones del Sidebar
     useEffect(() => {
-        const sections: (SiderBarSection<any>)[] = [];
+        const sections: SiderBarSection<any>[] = [];
+        console.log(books)
 
-        if (dataG) {
+
+        if (dataGenres) {
             sections.push({
                 id: 1,
                 title: "Géneros",
-                items: dataG,
-                renderItem: item => <span key={item.id}>{item.name}</span>
+                items: dataGenres,
+                renderItem: item => (
+                    <button
+                        key={item.id}
+                        className={`px-2 py-1 rounded-lg ${selectedGenreIds.includes(item.id) ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                        onClick={() => toggleGenreFilter(item.id)}
+                    >
+                        {item.name}
+                    </button>
+                )
             });
         }
 
-        if (dataA) {
+        if (dataAuthors) {
             sections.push({
                 id: 2,
                 title: "Autores",
-                items: dataA,
-                renderItem: item => <span>{item.nombre}</span>
+                items: dataAuthors,
+                renderItem: item => (
+                    <button
+                        key={item.id}
+                        className={`px-2 py-1 rounded-lg ${selectedAuthorIds.includes(item.id) ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                        onClick={() => toggleAuthorFilter(item.id)}
+                    >
+                        {item.nombre}
+                    </button>
+                )
             });
         }
 
         setIsSidebarSections(sections.length > 0 ? sections : null);
-    }, [dataG, dataA]);
-
+    }, [dataGenres, dataAuthors, selectedGenreIds, selectedAuthorIds]);
 
     useEffect(() => {
         document.body.classList.toggle("overflow-hidden", isVisible && window.innerWidth < 640);
     }, [isVisible]);
 
-
     return (
-
         <div className="w-full max-w-xl-plus mx-auto flex flex-col bg-gray-200 items-center min-h-200">
 
             <Delay
@@ -71,19 +112,42 @@ function HomePage() {
                 onHandleVisble={() => { setIsVisible(false) }}
             />
 
-            <div
-                className={`lg:hidden md:hidden top-25 fixed  transition-all duration-600 ease-in-out z-70 overflow-hidden ${isSesion ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}`}>
+            <div className={`lg:hidden md:hidden top-25 fixed transition-all duration-600 ease-in-out z-70 overflow-hidden ${isSesion ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}`}>
                 <UserSesion />
+                {user && (
+                    <div onClick={() => { navigate('/biblioteca') }} className="mt-2 gap-2 rounded-lg h-10 flex justify-center bg-blue-300">
+                        <button className="text-xl font-bold">Ver mi biblioteca</button>
+                        <img src="/biblioteca.png" alt="" className="w-12" />
+                    </div>
+                )}
             </div>
+
+            <div className={`lg:hidden md:hidden top-25 fixed transition-all duration-600 ease-in-out z-70 overflow-hidden ${isCart ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}`}>
+                {cart ? (
+                    <div>
+                        {cart.map(book =>
+                            book.title
+                        )}
+                    </div>
+                ) : (
+                    <div>
+                        <p>Carrito de compras vacío</p>
+                    </div>
+                )}
+            </div>
+
+
 
             <div className="pl-5 pr-5">
 
                 <Header
                     isSesion={isSesion}
                     isComplete={true}
-                    onHandleSesion={() => { setIsSesion(!isSesion), setIsSearch(false) }}
-                    onToggle={() => { setIsVisible(!isVisible), setIsSearch(false) }}
-                    onHandleSearch={() => { setIsSearch(!isSearch) }} />
+                    onHandleSesion={() => { setIsSesion(!isSesion); setIsSearch(false) }}
+                    onToggle={() => { setIsVisible(!isVisible); setIsSearch(false) }}
+                    onHandleSearch={() => { setIsSearch(!isSearch) }}
+                />
+
 
                 <Browser
                     isMovil={true}
@@ -91,22 +155,19 @@ function HomePage() {
                     isVisibleP={isVisible}
                 />
 
-                <div className="flex gap-6  rounded-xl mt-5">
+                <div className="flex gap-6 rounded-xl mt-5">
 
                     <div className={`fixed md:static transition-all duration-500 ease-in-out z-70 ${isVisible ? "opacity-100 max-w-full" : "opacity-0 max-w-0"}`}>
                         {isLoadingG || isLoadingA ? (
                             <p>Cargando categorías...</p>
                         ) : errorG || errorA ? (
                             <p>Error al cargar las categorías.</p>
-                        ) : dataG && dataG.length > 0 || dataA && dataA.length > 0 ? (
-                            <SiderBar<any>
-                                section={isSidebarSections}
-                            />
+                        ) : isSidebarSections ? (
+                            <SiderBar<any> section={isSidebarSections} />
                         ) : (
                             <p>No hay libros disponibles.</p>
                         )}
                     </div>
-
 
                     {isLoading ? (
                         <p>Cargando libros...</p>
@@ -114,11 +175,18 @@ function HomePage() {
                         <p>Error al cargar los libros.</p>
                     ) : filteredBooks && filteredBooks.length > 0 ? (
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 pl-3 pr-3">
-                            {filteredBooks?.map((book) =>
-                                <EBookCard key={book.id} id={book.id} authorId={book.author.id} image={book.cover ? `${apiLitHubCoversBooks}${book.cover}` : sinportada} />
-                            )}
-                        </div>) : (
-                        <p className="text-xl  w-full flex text-center justify-center">Sin resultados</p>
+                            {filteredBooks.map(book => (
+                                <EBookCard
+                                    key={book.id}
+                                    id={book.id}
+                                    authorId={book.author.id}
+                                    image={book.cover ? `${apiLitHubCoversBooks}${book.cover}` : sinportada}
+                                    book={book}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-xl w-full flex text-center justify-center">Sin resultados</p>
                     )}
 
                 </div>
