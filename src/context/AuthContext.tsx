@@ -7,8 +7,8 @@ import {
     type ReactNode,
 } from "react";
 import type { User } from "../interfaces/users.interface";
-import { useNavigate } from "react-router-dom";
 import { apiLitHubAuthMe } from "../constants/rutas.constants";
+import { useCart } from "./CartContext";
 
 interface AuthContextProps {
     user: User | null;
@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { clearCart } = useCart();
 
     useEffect(() => {
         const restoreSession = async () => {
@@ -80,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("access_token");
         setToken(null);
         setUser(null);
-       
+        clearCart();
     };
 
     if (isLoading) {

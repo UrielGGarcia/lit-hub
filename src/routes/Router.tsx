@@ -4,6 +4,7 @@ import HomePage from "../pages/home/HomePage";
 import { AdmonPanelApp } from "../pages/administrative-panel/AdmonPanelApp";
 import BookDetail from "../pages/bookdetail/BookDetailPage";
 import { AuthForm } from "../pages/Auth/AuthApp";
+import BibliotecaApp from "../pages/library/BibliotecaApp";
 
 
 export function Router() {
@@ -15,6 +16,7 @@ export function Router() {
                 <Route path="/administrative-panel" element={<AdmonPanelApp />} />
                 <Route path="/ebook/:id/:authorId" element={<BookDetail />} />
                 <Route path="/auth" element={<AuthForm />} />
+                <Route path="/biblioteca" element={<BibliotecaApp />} />
             </Routes>
         </BrowserRouter>
     )

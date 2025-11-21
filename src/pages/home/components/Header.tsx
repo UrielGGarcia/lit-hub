@@ -1,6 +1,9 @@
 import { useRef } from "react";
 import UserSesion from "./UserSesion";
 import Browser from "./Browser";
+import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../../../context/CartContext";
 
 type Props = {
     onToggle?: () => void;
@@ -12,6 +15,10 @@ type Props = {
 
 function Header({ onToggle, onHandleSearch, onHandleSesion, isSesion, isComplete = true }: Props) {
     const headerRef = useRef<HTMLElement>(null);
+    const { user } = useAuth();
+    const { cart } = useCart();
+
+    const navigate = useNavigate();
     if (!isComplete) {
         return (
             <header
@@ -33,13 +40,21 @@ function Header({ onToggle, onHandleSearch, onHandleSesion, isSesion, isComplete
                     {/* --- Navegación principal --- */}
                     <nav className="flex items-center gap-4">
 
-                        <div className="relative group inline-block">
+                        <div
+
+                            className="relative group inline-block">
                             <svg className="hover:scale-110 transition-transform cursor-pointer h-10 w-10 hidden lg:block md:block">
                                 <use xlinkHref="/sprite.svg#icon-cart" />
                             </svg>
                             <span className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-800 rounded-sm text-white p-1 mt-2 w-24 text-center">
                                 Ver carrito
                             </span>
+                            {user && (
+                                <div
+                                    className="rounded-full w-4 h-4 bg-blue-800 absolute top-0 right-0 -mt-3 flex justify-center items-center text-sm text-white">
+                                    {cart.length}
+                                </div>
+                            )}
                         </div>
 
 
@@ -103,9 +118,20 @@ function Header({ onToggle, onHandleSearch, onHandleSesion, isSesion, isComplete
                         </a>
 
                         <div className="relative group inline-block">
-                            <svg className="hover:scale-110 transition-transform cursor-pointer h-10 w-10 hidden lg:block md:block">
-                                <use xlinkHref="/sprite.svg#icon-cart" />
-                            </svg>
+                            <div className="reltive">
+                                <button
+                                    onClick={() => { alert("Ver carrro") }}>
+                                    <svg className="hover:scale-110 transition-transform cursor-pointer h-10 w-10 hidden lg:block md:block">
+                                        <use xlinkHref="/sprite.svg#icon-cart" />
+                                    </svg>
+                                    {user && (
+                                        <div
+                                            className="rounded-full w-4 h-4 bg-blue-800 absolute top-0 right-0 -mt-3 flex justify-center items-center text-sm text-white">
+                                            {cart.length}
+                                        </div>
+                                    )}
+                                </button>
+                            </div>
                             <span className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-800 rounded-sm text-white p-1 mt-2 w-24 text-center">
                                 Ver carrito
                             </span>
@@ -125,9 +151,13 @@ function Header({ onToggle, onHandleSearch, onHandleSesion, isSesion, isComplete
                             >
                                 <use xlinkHref="/sprite.svg#icon-search" />
                             </svg>
-                            <svg className="w-7 h-7 text-black">
-                                <use xlinkHref="/sprite.svg#icon-cart" />
-                            </svg>
+                            <button
+                                onClick={() => { alert("Ver carrro") }}>
+                                <svg
+                                    className="w-7 h-7 text-black">
+                                    <use xlinkHref="/sprite.svg#icon-cart" />
+                                </svg>
+                            </button>
                             <svg className="w-7 h-7 text-black"
                                 onClick={onHandleSesion}>
                                 <use xlinkHref="/sprite.svg#icon-user" />
@@ -140,6 +170,16 @@ function Header({ onToggle, onHandleSearch, onHandleSesion, isSesion, isComplete
                 <div
                     className={`fixed hidden md:block lg:block lg:top-30 md:top-30 transition-all duration-500 ease-in-out z-70 ${isSesion ? "opacity-100 max-w-full" : "opacity-0 max-w-0"}`}>
                     <UserSesion />
+                    {user && (
+                        <div
+                            onClick={() => { navigate('/biblioteca') }}
+                            className="mt-2 gap-2 rounded-lg h-10 flex justify-center bg-blue-300">
+                            <button className="text-xl font-bold">
+                                Ver mi biblioteca
+                            </button>
+                            <img src="/biblioteca.png" alt="" className="w-12" />
+                        </div>
+                    )}
                 </div>
 
             </header>

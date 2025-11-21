@@ -25,6 +25,8 @@ export function AdmonPanelApp() {
     const [successEpub, setSuccessEpub] = useState<boolean>(false);
     const [successPdf, setSuccessPdf] = useState<boolean>(false);
 
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+
 
     const { user } = useAuth();
 
@@ -48,6 +50,7 @@ export function AdmonPanelApp() {
             price: parseFloat(precio),
             authorId: userId,
             idioma: idioma,
+            genreIds: selectedGenres
         };
 
         console.log(body);
@@ -164,6 +167,8 @@ export function AdmonPanelApp() {
                                     setPrecio={setPrecio}
                                     isLoading={isLoading}
                                     error={error}
+                                    selectedGenres={selectedGenres}
+                                    setSelectedGenres={setSelectedGenres}
                                 />
                             )}
                             {activeTabBook == "Ver mis E-books" && (

@@ -68,8 +68,10 @@ function UserSesion() {
                             }
                         >Registrarse</li>
                     </ul>
+                    
                 </div>
             )}
+            
         </nav>
     );
 }
