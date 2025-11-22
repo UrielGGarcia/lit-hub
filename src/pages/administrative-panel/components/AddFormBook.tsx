@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiLitHubGenres } from "../../../constants/rutas.constants";
+import { useAuth } from "../../../context/AuthContext";
 
 type Genre = {
     id: number;
@@ -37,6 +38,8 @@ export function AddFormBook({
 }: AddFormProps) {
     const [genres, setGenres] = useState<Genre[]>([]);
     const [newGenre, setNewGenre] = useState("");
+    const { token } = useAuth(); // agregar esto arriba del return
+
 
     // Cargar géneros existentes
     useEffect(() => {
@@ -47,13 +50,19 @@ export function AddFormBook({
     }, []);
 
     // Agregar nuevo género
+
     const handleAddGenre = async () => {
         if (!newGenre.trim()) return;
+
+        if (!token) return alert("No estás autenticado");
 
         try {
             const res = await fetch(apiLitHubGenres, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` // <-- aquí agregas el token
+                },
                 body: JSON.stringify({ name: newGenre }),
             });
 
@@ -70,6 +79,7 @@ export function AddFormBook({
         }
     };
 
+
     // Seleccionar / deseleccionar género
     const toggleGenre = (id: number) => {
         setSelectedGenres((prev: number[]) =>
@@ -79,7 +89,7 @@ export function AddFormBook({
 
     return (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Título */}
+            <h1 className="font-bold text-lg text-justify">Asegúrate de agregar y llenar todos y cada uno de los campos. Así como subir todos los archivos correspondientes, de lo contrario no serán publicados en LitHub.</h1>
             <div className="col-span-2">
                 <label className="block text-gray-700 font-medium mb-2">Título</label>
                 <input
@@ -106,11 +116,12 @@ export function AddFormBook({
             <div className="col-span-2">
                 <label className="block text-gray-700 font-medium mb-2">Idioma</label>
                 <select
+                    required
                     onChange={(e) => setIdioma(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     defaultValue="Español"
                 >
-                    <option value="Español">Español</option>
+                    <option value="Español" selected>Español</option>
                     <option value="Inglés">Inglés</option>
                     <option value="Francés">Francés</option>
                 </select>

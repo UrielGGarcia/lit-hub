@@ -19,9 +19,19 @@ export const apiLitHubUsers = `http://${direccionIp}:3003/users`;
 // Rutas de autenticación
 export const apiLitHubAuth = `http://${direccionIp}:3003/auth/login`;
 export const apiLitHubAuthMe = `http://${direccionIp}:3003/auth/me`;
+export const apiLitHubRegister = `http://${direccionIp}:3003/auth/register`;
+export const apiLitHubAddUser = `http://${direccionIp}:3003/auth/admin/users`;
+
+export const apiLitHubVerifyCode = `http://${direccionIp}:3003/auth/verify-code`;
+export const apiLitHubSendCode = `http://${direccionIp}:3003/auth/send-code`;
+
 
 // Rutas de compra
-export const apiLitHubCheckoutSession = `http://${direccionIp}:3003/stripe/checkout-session`;
+export const apiLitHubCheckoutSessionCart = `http://${direccionIp}:3003/stripe/checkout-session/cart`;
+
+export const apiLitHubPurchasesPaid = `http://${direccionIp}:3003/purchases/paid`;
+export const apiLitHubAccesos = `http://${direccionIp}:3003/books/usersbooks`;
+
 
 // Rutas de descarga
 export const apiLitHubDownload = `http://${direccionIp}:3003/books/download`;

@@ -51,7 +51,6 @@ export function Login() {
     useEffect(() => {
         if (success && data) {
             setIsIncorrectCredentials("");
-            console.log("Token", localStorage.getItem("access_token"));
             logIn(data.access_token, data.user);
             navigate("/");
         }

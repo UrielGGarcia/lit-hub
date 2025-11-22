@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
 import { usePost } from "../../../hooks/public/usePost.hook";
-import { apiLitHubUsers } from "../../../constants/rutas.constants";
+import { apiLitHubRegister } from "../../../constants/rutas.constants";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 type PropsRegister = {
     enviarValor: (valor: boolean) => void;
 }
 
 export function Register({ enviarValor }: PropsRegister) {
+    const navigate = useNavigate();
+    const { logIn } = useAuth();
 
     // Variables de petición
-    const { data, isLoading, error, success, postData } = usePost(apiLitHubUsers);
+    const { data, isLoading, error, success, postData } = usePost(apiLitHubRegister);
     const [nombre, setNomombre] = useState("");
     const [apellidoPaterno, setApellidoPaterno] = useState("");
     const [apellidoMaterno, setApellidoMaterno] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [rol, setRol] = useState("CLIENT");
+    const [rol] = useState("CLIENT");
 
     // Variables de componente
     const [isAlreadyExists, seIsAlreadyExists] = useState("");
@@ -59,7 +63,10 @@ export function Register({ enviarValor }: PropsRegister) {
         if (success && data) {
             seIsAlreadyExists("");
             enviarValor(true);
-            console.log("Usuario creado:", data);
+            logIn(data.access_token, data.user);
+            setTimeout(() => {
+                navigate("/")
+            }, 2000)
         }
     }, [success, data]);
 

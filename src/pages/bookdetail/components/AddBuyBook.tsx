@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { usePost } from "../../../hooks/public/usePost.hook";
-import { apiLitHubCheckoutSession } from "../../../constants/rutas.constants";
+import { apiLitHubCheckoutSessionCart } from "../../../constants/rutas.constants";
 import { useCart } from "../../../context/CartContext";
 import type { Ebook } from "../../../interfaces/books.interfaces";
+import { useLibrary } from "../../../context/LibraryContext";
 
 type AddBuyBookProps = {
     title: string | undefined,
@@ -14,36 +15,48 @@ type AddBuyBookProps = {
 
 export function AddBuyBook({ title, price, bookId, book }: AddBuyBookProps) {
     const { user } = useAuth();
+    const { library } = useLibrary();
+    const { cart } = useCart();
+
     const [isNotUserBuy, setIsNotUserBuy] = useState(true);
     const [isNotUserAdd, setIsNotUserAdd] = useState(true);
 
-    const { data, isLoading, error, postData } = usePost(apiLitHubCheckoutSession);
-    const [response, setResponse] = useState<any>(null);
+    const { postData } = usePost(apiLitHubCheckoutSessionCart);
+    const [setResponse] = useState<any>(null);
 
+    const inLibrary = library.some((b) => Number(b.bookId) === Number(book?.id));
+    const inCart = cart.some((b) => Number(b.id) === Number(book?.id));
+    const disableAddButton = inLibrary || inCart;
 
     const onBuyBook = async () => {
         if (!user) {
             setIsNotUserBuy(false);
-        } else {
-            setIsNotUserBuy(true);
-            const body = {
-                bookId: bookId,
-                userEmail: user.email,
-                userId: user.id
-            }
-            console.log(body);
-
-            try {
-                const response = await postData(body);
-                setResponse(response);
-                console.log(response);
-                window.location.href = response.url;
-
-            } catch (error) {
-                alert(`Ya se ha comprado este E-book. Te invitamos a revisar en tu bliblioteca.`)
-            }
+            return;
         }
-    }
+
+        setIsNotUserBuy(true);
+
+        const body = {
+            userId: user.id,
+            userEmail: user.email,
+            items: [
+                {
+                    bookId: bookId
+                }
+            ]
+        };
+
+
+        try {
+            const response = await postData(body);
+            setResponse(response);
+            window.location.href = response.url;
+        } catch (error) {
+            console.error(error);
+            alert(`Ya se ha comprado este E-book. Te invitamos a revisar en tu biblioteca.`);
+        }
+    };
+
 
     const { addToCart } = useCart();
 
@@ -62,14 +75,22 @@ export function AddBuyBook({ title, price, bookId, book }: AddBuyBookProps) {
             <p className="text-xl font-bold mb-4 text-gray-900">${price}</p>
             <button
                 onClick={onBuyBook}
-                className="bg-orange-500 text-white w-full py-2 rounded-md mb-3 hover:bg-orange-400 transition">
-                Comprar ahora
+                disabled={disableAddButton}
+                className={`bg-orange-500 text-white w-full py-2 rounded-md mb-3 transition
+        ${disableAddButton ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-400"}`}
+            >
+                {inLibrary ? "YA EN TU BIBLIOTECA" : inCart ? "YA EN EL CARRITO" : "Comprar ahora"}
             </button>
+
             <button
                 onClick={onAddBook}
-                className="bg-gray-200 w-full py-2 rounded-md hover:bg-gray-300 transition mb-4 text-gray-800">
-                Agregar al carrito
+                disabled={disableAddButton}
+                className={`bg-gray-200 w-full py-2 rounded-md mb-4 text-gray-800 transition
+        ${disableAddButton ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
+            >
+                {inLibrary ? "YA EN TU BIBLIOTECA" : inCart ? "YA EN EL CARRITO" : "Agregar al carrito"}
             </button>
+
             {isNotUserBuy || isNotUserAdd && (
                 <div>
                     <p className="text-sm text-orange-700">Por favor inicia sesión o regístrate para poder comprar alguno de nuestros E-books.</p>

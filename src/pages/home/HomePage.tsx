@@ -12,17 +12,17 @@ import { useGet } from "../../hooks/public/useGet";
 import { useSearch } from "../../context/SearchContext";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
+import { CartApp } from "../cart/CartApp";
+import { useGetWithHeaders } from "../../hooks/private/useGetWithHeader";
 
 function HomePage() {
     const { user } = useAuth();
-    const { cart } = useCart();
     const navigate = useNavigate();
 
     const [isVisible, setIsVisible] = useState(window.innerWidth < 835 ? false : true);
     const [isSearch, setIsSearch] = useState(false);
     const [isSesion, setIsSesion] = useState(false);
-    const [isCart, setIsCart] = useState(true);
+    const [isCart, setIsCart] = useState<boolean>(false);
 
 
     const [isSidebarSections, setIsSidebarSections] = useState<SiderBarSection<any>[] | null>(null);
@@ -33,8 +33,16 @@ function HomePage() {
     const { search } = useSearch();
 
     const { data: books, isLoading, error } = useGet<Ebook[]>(apiLitHubBooks);
-    const { data: dataGenres, isLoading: isLoadingG, error: errorG } = useGet<Genre[]>(apiLitHubGenres);
-    const { data: dataAuthors, isLoading: isLoadingA, error: errorA } = useGet<Author[]>(apiLitHubAuthors);
+    const { token } = useAuth();
+
+    const { data: dataGenres, isLoading: isLoadingG, error: errorG } = useGetWithHeaders<Genre[]>(apiLitHubGenres, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const { data: dataAuthors, isLoading: isLoadingA, error: errorA } = useGetWithHeaders<Author[]>(apiLitHubAuthors, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
 
     // Funciones para actualizar filtros
     const toggleGenreFilter = (id: number) => {
@@ -58,8 +66,6 @@ function HomePage() {
     // Construir secciones del Sidebar
     useEffect(() => {
         const sections: SiderBarSection<any>[] = [];
-        console.log(books)
-
 
         if (dataGenres) {
             sections.push({
@@ -89,7 +95,7 @@ function HomePage() {
                         className={`px-2 py-1 rounded-lg ${selectedAuthorIds.includes(item.id) ? "bg-blue-600 text-white" : "bg-gray-200"}`}
                         onClick={() => toggleAuthorFilter(item.id)}
                     >
-                        {item.nombre}
+                        {item.nombre} {item.apellidoPaterno} {item.apellidoMaterno}
                     </button>
                 )
             });
@@ -99,17 +105,22 @@ function HomePage() {
     }, [dataGenres, dataAuthors, selectedGenreIds, selectedAuthorIds]);
 
     useEffect(() => {
-        document.body.classList.toggle("overflow-hidden", isVisible && window.innerWidth < 640);
-    }, [isVisible]);
+        document.body.classList.toggle("overflow-hidden", (isVisible || isCart) && window.innerWidth < 640);
+    }, [isVisible, isCart]);
+
+
 
     return (
-        <div className="w-full max-w-xl-plus mx-auto flex flex-col bg-gray-200 items-center min-h-200">
+        <div className="w-full max-w-xl-plus mx-auto flex flex-col bg-gray-200 items-center lg:min-h-200 md:min-h-300 ">
+
 
             <Delay
                 isSesionP={isSesion}
                 isVisibleP={isVisible}
+                isCartV={isCart}
                 onHandleSesion={() => { setIsSesion(false) }}
                 onHandleVisble={() => { setIsVisible(false) }}
+                onHandleCartV={() => { setIsCart(false) }}
             />
 
             <div className={`lg:hidden md:hidden top-25 fixed transition-all duration-600 ease-in-out z-70 overflow-hidden ${isSesion ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}`}>
@@ -122,20 +133,9 @@ function HomePage() {
                 )}
             </div>
 
-            <div className={`lg:hidden md:hidden top-25 fixed transition-all duration-600 ease-in-out z-70 overflow-hidden ${isCart ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}`}>
-                {cart ? (
-                    <div>
-                        {cart.map(book =>
-                            book.title
-                        )}
-                    </div>
-                ) : (
-                    <div>
-                        <p>Carrito de compras vacío</p>
-                    </div>
-                )}
+            <div className={`ml-5 mr-5 lg:hidden md:hidden top-25 fixed transition-all duration-600 ease-in-out z-70 overflow-hidden border border-gray-300 rounded-lg ${isCart ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}`}>
+                <CartApp />
             </div>
-
 
 
             <div className="pl-5 pr-5">
@@ -143,9 +143,23 @@ function HomePage() {
                 <Header
                     isSesion={isSesion}
                     isComplete={true}
-                    onHandleSesion={() => { setIsSesion(!isSesion); setIsSearch(false) }}
+                    onHandleSesion={() => {
+                        setIsSesion(!isSesion);
+                        setIsSearch(false);
+                        setIsCart(false);
+                    }}
                     onToggle={() => { setIsVisible(!isVisible); setIsSearch(false) }}
-                    onHandleSearch={() => { setIsSearch(!isSearch) }}
+                    onHandleSearch={() => {
+                        setIsSearch(!isSearch);
+                        setIsCart(false);
+                        setIsSesion(false);
+                    }}
+                    onHandleCart={() => {
+                        setIsCart(!isCart);
+                        setIsSesion(false);
+                        setIsSearch(false);
+                    }}
+                    isCart={isCart}
                 />
 
 
@@ -192,6 +206,7 @@ function HomePage() {
                 </div>
 
             </div>
+
 
         </div>
     );

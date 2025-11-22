@@ -3,6 +3,7 @@ import { apiLitHubBooks, apiLitHubCoversBooks, apiLitHubDownload } from "../../c
 import sinportada from '/sinportada.png';
 import { useGetWithHeaders } from "../../hooks/private/useGetWithHeader";
 
+
 interface Book {
     bookId: number;
     title: string;
@@ -18,6 +19,7 @@ export default function BibliotecaApp() {
         user?.id ? `${apiLitHubBooks}/mybooks/${user.id}` : null,
         { headers: { Authorization: `Bearer ${token}` } }
     );
+
 
     if (isLoading) {
         return (
@@ -36,14 +38,15 @@ export default function BibliotecaApp() {
         );
     }
 
+
     return (
         <div className="min-h-screen bg-gray-950 p-4 sm:p-6 lg:p-10 text-white">
             <h1 className="text-3xl font-bold mb-6 text-center sm:text-left">📚 Mi Biblioteca</h1>
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {books?.map((book: Book) => (
-                    <div 
-                    key={book.bookId} 
-                    className="bg-gray-900 rounded-2xl shadow-lg overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                    <div
+                        key={book.bookId}
+                        className="bg-gray-900 rounded-2xl shadow-lg overflow-hidden hover:scale-[1.02] transition-transform duration-300">
                         <img
                             src={book.cover ? `${apiLitHubCoversBooks}${book.cover}` : sinportada}
                             alt={book.title}
@@ -57,7 +60,6 @@ export default function BibliotecaApp() {
                                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl transition"
                                 onClick={async () => {
                                     try {
-                                        console.log(books)
                                         const res = await fetch(`${apiLitHubDownload}/${book.bookId}`, {
                                             method: 'GET',
                                             headers: { Authorization: `Bearer ${token}` },
