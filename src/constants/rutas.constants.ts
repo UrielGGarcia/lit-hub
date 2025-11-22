@@ -1,39 +1,32 @@
-// Direccion Ip en local
-const direccionIp = "192.168.100.10"
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Rutas de libros
-export const apiLitHubBooks = `http://${direccionIp}:3003/books`;
-export const apiLitHubBooksByAutor = `http://${direccionIp}:3003/books/by-author`;
-export const apiLitHubBooksByAutorNoPublished = `http://${direccionIp}:3003/books/by-author-no-published`;
-export const apiLitHubGenres = `http://${direccionIp}:3003/genres`;
-export const apiLitHubAuthors = `http://${direccionIp}:3003/users/authors`;
-export const apiLitHubCoversBooks = `http://${direccionIp}:3003/uploads/books/covers/`;
-
+export const apiLitHubBooks = `${API_URL}/books`;
+export const apiLitHubBooksByAutor = `${API_URL}/books/by-author`;
+export const apiLitHubBooksByAutorNoPublished = `${API_URL}/books/by-author-no-published`;
+export const apiLitHubGenres = `${API_URL}/genres`;
+export const apiLitHubAuthors = `${API_URL}/users/authors`;
+export const apiLitHubCoversBooks = `${API_URL}/uploads/books/covers/`;
 
 // Rutas de archivos 
-export const apiLitHubFiles = `http://${direccionIp}:3003/files/book-create`;
+export const apiLitHubFiles = `${API_URL}/files/book-create`;
 
 // Rutas de usuarios
-export const apiLitHubUsers = `http://${direccionIp}:3003/users`;
+export const apiLitHubUsers = `${API_URL}/users`;
 
 // Rutas de autenticación
-export const apiLitHubAuth = `http://${direccionIp}:3003/auth/login`;
-export const apiLitHubAuthMe = `http://${direccionIp}:3003/auth/me`;
-export const apiLitHubRegister = `http://${direccionIp}:3003/auth/register`;
-export const apiLitHubAddUser = `http://${direccionIp}:3003/auth/admin/users`;
+export const apiLitHubAuth = `${API_URL}/auth/login`;
+export const apiLitHubAuthMe = `${API_URL}/auth/me`;
+export const apiLitHubRegister = `${API_URL}/auth/register`;
+export const apiLitHubAddUser = `${API_URL}/auth/admin/users`;
 
-export const apiLitHubVerifyCode = `http://${direccionIp}:3003/auth/verify-code`;
-export const apiLitHubSendCode = `http://${direccionIp}:3003/auth/send-code`;
-
+export const apiLitHubVerifyCode = `${API_URL}/auth/verify-code`;
+export const apiLitHubSendCode = `${API_URL}/auth/send-code`;
 
 // Rutas de compra
-export const apiLitHubCheckoutSessionCart = `http://${direccionIp}:3003/stripe/checkout-session/cart`;
-
-export const apiLitHubPurchasesPaid = `http://${direccionIp}:3003/purchases/paid`;
-export const apiLitHubAccesos = `http://${direccionIp}:3003/books/usersbooks`;
-
+export const apiLitHubCheckoutSessionCart = `${API_URL}/stripe/checkout-session/cart`;
+export const apiLitHubPurchasesPaid = `${API_URL}/purchases/paid`;
+export const apiLitHubAccesos = `${API_URL}/books/usersbooks`;
 
 // Rutas de descarga
-export const apiLitHubDownload = `http://${direccionIp}:3003/books/download`;
-
-
+export const apiLitHubDownload = `${API_URL}/books/download`;
