@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import type { Ebook } from "../interfaces/books.interfaces";
-
-
+import { useLibrary } from "./LibraryContext";
 
 // Props del contexto
 interface CartContextProps {
@@ -9,6 +8,7 @@ interface CartContextProps {
     addToCart: (ebook: Ebook) => void;
     removeFromCart: (id: number) => void;
     clearCart: () => void;
+    total: number;
 }
 
 // Crear contexto
@@ -17,6 +17,7 @@ const CartContext = createContext<CartContextProps>({
     addToCart: () => { },
     removeFromCart: () => { },
     clearCart: () => { },
+    total: 0,
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
@@ -25,19 +26,32 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         return saved ? JSON.parse(saved) : [];
     });
 
+    const { library, loading } = useLibrary(); // ✅ incluir loading
+
     useEffect(() => {
         localStorage.setItem("cart", JSON.stringify(cart));
     }, [cart]);
 
     const addToCart = (ebook: Ebook) => {
-        setCart((prev) => {
-            const exists = prev.find((item) => item.id === ebook.id);
-            if (exists) {
-                alert(`El libro ${exists.title} ya está en tu carrito, listo para comprar.`);
-                return prev;
-            }
-            return [...prev, ebook];
-        });
+        if (loading) {
+            alert("Cargando biblioteca, espera un momento...");
+            return;
+        }
+
+        const existsInCart = cart.some((item) => Number(item.id) === Number(ebook.id));
+        const existsInLibrary = library.some((item) => Number(item.bookId) === Number(ebook.id));
+
+        if (existsInCart) {
+            alert(`El libro "${ebook.title}" ya está en tu carrito.`);
+            return;
+        }
+
+        if (existsInLibrary) {
+            alert(`El libro "${ebook.title}" ya está en tu biblioteca, no se puede agregar al carrito.`);
+            return;
+        }
+
+        setCart((prev) => [...prev, ebook]);
     };
 
 
@@ -47,8 +61,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const clearCart = () => setCart([]);
 
+    const total = cart.reduce((acc, item) => acc + Number(item.price), 0);
+
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, total }}>
             {children}
         </CartContext.Provider>
     );

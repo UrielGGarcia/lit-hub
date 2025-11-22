@@ -5,6 +5,8 @@ export interface Ebook {
     sinopsis: string;
     idioma: string;
     cover: string | null;
+    stripePriceId: string,
+    stripeProductId: string,
     author: Author;
     genres: Genre[];
 }
@@ -13,7 +15,7 @@ export type Author = {
     id: number;
     nombre: string;
     apellidoPaterno: string;
-    apellidoMaterno?: string;
+    apellidoMaterno: string;
 }
 
 export type Genre = {

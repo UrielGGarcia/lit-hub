@@ -34,15 +34,6 @@ function Browser({ isMovil, isSearchP, isVisibleP }: Props) {
                                 title="Escribe palabras clave de tu interés"
                             />
 
-                            <div className="relative group inline-block">
-                                <svg className="w-7 h-7 text-gray-700 cursor-pointer">
-                                    <use xlinkHref="/sprite.svg#icon-filter" />
-                                </svg>
-                                <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded">
-                                    Filtrar resultados
-                                </span>
-                            </div>
-
                         </div>
 
                     </div>
@@ -64,14 +55,6 @@ function Browser({ isMovil, isSearchP, isVisibleP }: Props) {
                         title="Escribe palabras clave de tu interés"
                     />
 
-                    <div className="relative group inline-block">
-                        <svg className="w-8 h-8 text-gray-700 cursor-pointer">
-                            <use xlinkHref="/sprite.svg#icon-filter" />
-                        </svg>
-                        <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded">
-                            Filtrar resultados
-                        </span>
-                    </div>
                 </div>
 
             )}

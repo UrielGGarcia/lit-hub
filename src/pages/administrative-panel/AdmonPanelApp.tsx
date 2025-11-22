@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { usePost } from "../../hooks/public/usePost.hook";
 import { useUploadFile } from "../../hooks/public/useUploadFile.hook";
 import { apiLitHubBooks, apiLitHubBooksByAutor, apiLitHubBooksByAutorNoPublished, apiLitHubFiles } from "../../constants/rutas.constants";
 import { useAuth } from "../../context/AuthContext";
@@ -9,6 +8,8 @@ import { AddFormBook } from "./components/AddFormBook";
 import { UploadFilesBook } from "./components/UploadFilesBook";
 import { Cuenta } from "./components/Cuenta";
 import { Settins } from "./components/Settings";
+import { useNavigate } from "react-router-dom";
+import { useApi } from "../../hooks/private/useApi";
 
 export function AdmonPanelApp() {
 
@@ -30,13 +31,15 @@ export function AdmonPanelApp() {
 
     const { user } = useAuth();
 
+    const navigate = useNavigate();
+
     const [userId, setUserId] = useState<string | any>("");
     const [ebookId, setEbookId] = useState<string | null>(null);
 
-    const { data, isLoading, error, postData } = usePost(apiLitHubBooks);
+    const { isLoading, error, callApi } = useApi<{ id: string }>();
 
-    const { data: dataEB, isLoading: isLoadingEB, error: errorEB } = useGet<Ebook[]>(`${apiLitHubBooksByAutor}/${userId}`)
-    const { data: dataEBN, isLoading: isLoadingEBN, error: errorEBN } = useGet<Ebook[]>(`${apiLitHubBooksByAutorNoPublished}/${userId}`)
+    const { data: dataEB } = useGet<Ebook[]>(`${apiLitHubBooksByAutor}/${userId}`)
+    const { data: dataEBN } = useGet<Ebook[]>(`${apiLitHubBooksByAutorNoPublished}/${userId}`)
 
 
     const { uploadFile, isLoading: isUploading, error: uploadError } = useUploadFile<any>();
@@ -53,10 +56,9 @@ export function AdmonPanelApp() {
             genreIds: selectedGenres
         };
 
-        console.log(body);
 
         try {
-            const result = await postData(body) as { id: string };
+            const result = await callApi(apiLitHubBooks, { method: "POST", body });
 
             alert("E-book guardado correctamente");
             setSuccessBody(true);
@@ -111,6 +113,8 @@ export function AdmonPanelApp() {
         }
     };
 
+
+
     return (
         <div className="min-h-screen bg-gray-100 p-4 md:p-8">
 
@@ -120,6 +124,13 @@ export function AdmonPanelApp() {
                     <h1 className="text-lg sm:text-xl font-semibold text-gray-700 text-center sm:text-left">
                         Panel de Administración
                     </h1>
+                    {user?.rol === "ADMIN" && (
+                        <button
+                            onClick={() => { navigate("/admon") }}
+                            className="bg-black hover:bg-gray-700 text-white rounded-lg p-1 text-xl cursor-pointer">
+                            Administración
+                        </button>
+                    )}
                     <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
                         {["cuenta", "ebook", "config"].map((tab) => (
                             <button
@@ -180,40 +191,17 @@ export function AdmonPanelApp() {
                                                 key={book.id}
                                                 className="flex gap-1 border p-1 rounded-lg">
                                                 <p className="text-lg w-1/2">{book.title}</p>
-                                                <div
-                                                    className="w-1/2 flex justify-between lg:justify-around">
-                                                    <button
-                                                        className=" rounded-lg p-1 text-sm cursor-pointer bg-amber-300 font-bold"
-                                                    >
-                                                        Editar
-                                                    </button>
-                                                    <button
-                                                        className=" rounded-lg p-1 text-sm text-white bg-red-700 cursor-pointer font-bold">
-                                                        Eliminar
-                                                    </button>
-                                                </div>
                                             </div>
                                         )}
                                     </div>
-                                    <strong className="text-red-900 text-2xl">PENDIENTES</strong>
-                                    <p className="text-sm text-gray-700">Por falta de portada, archivo PDF o archivo EPUB</p>
-                                    <p className="text-sm text-gray-700">Favor de agregar lo faltante. En caso de que no se agregue, Se eliminará automáticamente en 15 días.</p>
+                                    <strong className="text-red-900 text-2xl">NO PUBLICADOS</strong>
+                                    <p className="text-sm text-gray-700">Si por alguna razón faltó agregar archivos, o datos del E-book, se recomienda reesubir el E-book de forma correcta para que sea publicado correctamente. Los E-books que se suben incorrectamente son borrados automáticamente en quince días.</p>
                                     <div className="space-y-2 border rounded-lg p-2">
                                         {dataEBN?.map(book =>
                                             <div
                                                 key={book.id}
                                                 className="flex gap-1 border p-1 rounded-lg">
                                                 <p className="text-lg w-1/2">{book.title}</p>
-                                                <div className="w-1/2 flex justify-between">
-                                                    <button
-                                                        className=" rounded-lg p-1 text-sm cursor-pointer bg-amber-300 font-bold">
-                                                        Editar
-                                                    </button>
-                                                    <button
-                                                        className=" rounded-lg p-1 text-sm text-white bg-red-700 cursor-pointer font-bold">
-                                                        Eliminar
-                                                    </button>
-                                                </div>
                                             </div>
                                         )}
                                     </div>

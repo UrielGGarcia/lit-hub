@@ -70,11 +70,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         restoreSession();
     }, []);
 
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            if (!token) return;
+
+            try {
+                const res = await fetch(apiLitHubAuthMe, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (res.status === 401) { // ← usuario eliminado o token inválido
+                    logOut();
+                    alert("Tu sesión ha expirado o el usuario fue eliminado. Vuelve a iniciar sesión");
+                }
+            } catch (err) {
+                console.error("Error al validar sesión:", err);
+                logOut();
+            }
+        }, 5 * 60 * 1000); // cada 5 minutos
+
+        return () => clearInterval(interval);
+    }, [token]);
+
+
+
     const logIn = (jwt: string, userData: User) => {
         localStorage.setItem("access_token", jwt);
         setToken(jwt);
         setUser(userData);
-
     };
 
     const logOut = () => {
